@@ -26,6 +26,13 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.incremental = false
+
+        }
+    }
 }
 
 dependencies {

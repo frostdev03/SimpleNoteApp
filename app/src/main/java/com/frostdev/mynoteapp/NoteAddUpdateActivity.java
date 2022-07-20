@@ -155,7 +155,7 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         if (id == R.id.action_delete){
-            showAlertDialog(ALERT_DIALOG_CLOSE);
+            showAlertDelete(ALERT_DIALOG_DELETE);
         }
         return super.onOptionsItemSelected(item);
     }
@@ -165,40 +165,64 @@ public class NoteAddUpdateActivity extends AppCompatActivity implements View.OnC
         showAlertDialog(ALERT_DIALOG_CLOSE);
     }
 
-    private void showAlertDialog(int type){
-        final boolean isDialogClose = type == ALERT_DIALOG_CLOSE;
+    private void showAlertDelete(int type) {
+        final boolean isDialogDelete = type == ALERT_DIALOG_DELETE;
         String dialogTitle, dialogMessage;
 
-        if (isDialogClose){
+        if (isDialogDelete) {
+            dialogTitle = "Hapus Note";
+            dialogMessage = "Apakah anda yakin ingin menghapus item ini?";
+
+
+            AlertDialog.Builder alertDialogDelete = new AlertDialog.Builder(this);
+
+            alertDialogDelete.setTitle(dialogTitle);
+            alertDialogDelete.setMessage(dialogMessage)
+                    .setCancelable(false)
+                    .setPositiveButton("Ya", (dialog, which) -> {
+                        if (isDialogDelete) {
+                            long result = noteHelper.deleteById(String.valueOf(note.getId()));
+                            if (result > 0) {
+                                Intent intent = new Intent();
+                                intent.putExtra(EXTRA_POSITION, position);
+                                setResult(RESULT_DELETE, intent);
+                                finish();
+                            } else {
+                                Toast.makeText(NoteAddUpdateActivity.this, "Gagal menghapus data", Toast.LENGTH_SHORT).show();
+                            }
+
+
+                        }
+                    })
+                    .setNegativeButton("Tidak", (dialog, id) -> dialog.cancel());
+            AlertDialog alertDialog = alertDialogDelete.create();
+            alertDialog.show();
+        }
+    }
+
+    private void showAlertDialog(int type) {
+        final boolean isDialogClose = type == ALERT_DIALOG_CLOSE;
+
+        String dialogTitle, dialogMessage;
+
+        if (isDialogClose) {
             dialogTitle = "Batal";
             dialogMessage = "Apakah anda ingin membatalkan perubahan pada form?";
-        } else {
-            dialogMessage = "Apakah anda yakin ingin menghapus item ini?";
-            dialogTitle = "Hapus Note";
-        }
 
-        AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
 
-        alertDialogBuilder.setTitle(dialogTitle);
-        alertDialogBuilder.setMessage(dialogMessage)
-                .setCancelable(false)
-                .setPositiveButton("Ya", (dialog, id) -> {
-                    if (isDialogClose){
-                        finish();
-                    } else {
-                        long result = noteHelper.deleteById(String.valueOf(note.getId()));
-                        if (result > 0){
-                            Intent intent = new Intent();
-                            intent.putExtra(EXTRA_POSITION, position);
-                            setResult(RESULT_DELETE, intent);
+            AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(this);
+
+            alertDialogBuilder.setTitle(dialogTitle);
+            alertDialogBuilder.setMessage(dialogMessage)
+                    .setCancelable(false)
+                    .setPositiveButton("Ya", (dialog, id) -> {
+                        if (isDialogClose) {
                             finish();
-                        } else {
-                            Toast.makeText(NoteAddUpdateActivity.this, "Gagal menghapus data", Toast.LENGTH_SHORT).show();
                         }
-                    }
-                })
-                .setNegativeButton("Tidak", (dialog, id) -> dialog.cancel());
-        AlertDialog alertDialog = alertDialogBuilder.create();
-        alertDialog.show();
+                    })
+                    .setNegativeButton("Tidak", (dialog, id) -> dialog.cancel());
+            AlertDialog alertDialog = alertDialogBuilder.create();
+            alertDialog.show();
+        }
     }
 }
